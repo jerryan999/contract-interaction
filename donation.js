@@ -297,28 +297,37 @@ async function main() {
     }
 
     // 一次性尝试
-    // 尝试连续两次捐赠,一次认领
-    await onetimeVesting()
-    // did = 15  有时候需要手动设置一下
-    await printDonationInfo()
-    await donate()
-    await donate()
-    await claimsaft()
-    await claimBack()
-    await claimETHFund()
-    await claimToken()
+    async function onetimeTest() {
+        // 尝试连续两次捐赠,一次认领
+        // did = 15  有时候需要手动设置一下
+        await onetimeVesting()
+        await printDonationInfo()
+        await donate()
+        await donate()
+        await claimsaft()
+        await claimBack()
+        await claimETHFund()
+        await claimToken()
+    }
 
     // 线性释放
-    // await createLinearlyVesting()
-    // did = 11
-    // await printDonationInfo()
-    // // 尝试连续两次捐赠,一次认领
-    // await donate()
-    // await donate()
-    // await claimsaft()
-    // await claimBack()
-    // await claimETHFund()
+    async function createLinearTest() {
+        // await createLinearlyVesting()
+        did = 18
+        tokenId = 0
+        await printDonationInfo()
+        // 尝试连续两次捐赠,一次认领
+        // await donate()
+        // await donate()
+        // await claimsaft()        // 验证确实只会有一个tokenId
+        // await claimBack()
+        // await claimETHFund()
+        
+        // claim token看一下和一次性的有什么不同
+        await claimToken()
+    }
 
+    await createLinearTest()
 
     // await createStagedVesting()
 
