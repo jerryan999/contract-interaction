@@ -83,28 +83,29 @@ async function main() {
 	  }
 	
 	  let bestBlock = await provider.getBlock(await provider.getBlockNumber())
+	  
 	  // 【时间短点】方便debug
 	  supplyInfo.startTime = bestBlock.timestamp + 30   
-	  supplyInfo.endTime = supplyInfo.startTime + 3600 * 24
+	  supplyInfo.endTime = supplyInfo.startTime + 300 //3600 * 24
 	
-	const baseUri = "https://ipfs.io/ipfs/"
-	const nftOwner = wallet.address
+	// 格式是不是这样，有待验证
+	const baseUri = "ipfs/QmZJGTEFGfehXDgwkFGV9Cvvr6ECbSx2CXUPJQBAhWoSUj"
 
 	// // 创建ERC20代币NFT
-	  const tx = await tokenFactory.createNFT(supplyInfo, name, symbol, baseUri) 
-	  receipt = await tx.wait()
-      evt = receipt.events[receipt.events.length-1]
-	  const nftAddress = evt.args._token
-	  console.log("新创建的nft合约地址为：", nftAddress) 
+	//   const tx = await tokenFactory.createNFT(supplyInfo, name, symbol, baseUri) 
+	//   receipt = await tx.wait()
+    //   evt = receipt.events[receipt.events.length-1]
+	//   const nftAddress = evt.args._token
+	//   console.log("新创建的nft合约地址为：", nftAddress) 
 	
 
 	// //   // 操作新创建的NFT合约
-	//   const nftAddress = "0xcefee99eb648e42c78e678ce02f40f2c07b0eb07"
-    //   const nft = new ethers.Contract(nftAddress, require('./abis/NFT.json'), wallet)  // new代币合约对象
-	//   let totalSupply = await nft.totalSupply()
-	//   console.log('totalSupply', totalSupply.toString())
-	//   let supplyInfos = await nft.supplyInfo()
-	//   console.log('supplyInfos from blockchain:', supplyInfos)
+	  const nftAddress = "0xE25fD2B559eFc13aEE0ad81719992B9fCA3c0112"
+      const nft = new ethers.Contract(nftAddress, require('./abis/NFT.json'), wallet)  // new代币合约对象
+	  let totalSupply = await nft.totalSupply()
+	  console.log('totalSupply', totalSupply.toString())
+	  let supplyInfos = await nft.supplyInfo()
+	  console.log('supplyInfos from blockchain:', supplyInfos)
 
 
 	// //    NFT设定白名单(注意不能重复设定)
@@ -158,11 +159,23 @@ async function main() {
 	//  console.log("hash txid",txx.hash)   		//这个要传给后端
 	//  console.log(evt.args)
 
-	// tx = await nft.withdrawToken('0x11b720ad9fa537e5a249cac9f8069eb26921d59a') 
-	// const txxx = await tx.wait()
-	//  evt = txxx.events[txxx.events.length-1] 
-	//  console.log("hash txid",tx.hash)   		//这个要传给后端
-	//  console.log(evt.args)
+	// 取现eth
+	// 首先检查一下nft余额是否够，看看这个值是不是大于0
+	// 代币：supplyInfo.payment.balanceOf(nft.address)
+	// eth: 如果supplyInfo.payment等于0，那就是eth，否则就是代币
+	const balance = await provider.getBalance(nft.address)
+	console.log("nft余额为：", balance.toString())
+	if (balance.toString() == 0) { 
+		// 如果余额等于0，那就不可以提现
+		console.log("nft余额为0，不可以提现")
+		return 
+	}
+
+	tx = await nft.withdrawToken('0x11b720ad9fa537e5a249cac9f8069eb26921d59a') 
+	const txxx = await tx.wait()
+	 evt = txxx.events[txxx.events.length-1] 
+	 console.log("hash txid",tx.hash)   		//这个要传给后端
+	 console.log(evt.args)
 
 }
 

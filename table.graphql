@@ -242,8 +242,11 @@
     id
     user
     cost
-    fee
-    tokenId
+    fee,
+    startId
+    amount
+    txid
+    timestamp
   }
 }
 
@@ -257,4 +260,17 @@
     txid
     timestamp
   }
+}
+
+{
+  nftFundWithdraws {
+      id,
+      nft {
+        id
+      },
+      to
+      amount
+      txid
+      timestamp
+    }      
 }
