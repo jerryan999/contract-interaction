@@ -18,8 +18,7 @@ async function main() {
 	console.log("关联的钱包资产余额是:" + await wallet.getBalance())
 	console.log("\n")
 
-	//  const tokenFactoryAddress = '0xa82928D8Ab8Bbc41d0DEE4b09614b039878a80E3'
-	const tokenFactoryAddress = '0x0fF0034E7342AA77D6CDa317e5e22a40C687291A'
+	const tokenFactoryAddress = '0x474563e0427d7A44f7800d8949dED9b3C64Dad96'
 	const tokenFactory = new ethers.Contract(tokenFactoryAddress, require('./abis/TokenFactory.json'), wallet)
 	const decimals = 18
 
@@ -86,7 +85,7 @@ async function main() {
 	  
 	  // 【时间短点】方便debug
 	  supplyInfo.startTime = bestBlock.timestamp + 30   
-	  supplyInfo.endTime = supplyInfo.startTime + 300 //3600 * 24
+	  supplyInfo.endTime = supplyInfo.startTime + 180 //3600 * 24
 	
 	// 格式是不是这样，有待验证
 	const baseUri = "ipfs/QmZJGTEFGfehXDgwkFGV9Cvvr6ECbSx2CXUPJQBAhWoSUj"
@@ -100,7 +99,7 @@ async function main() {
 	
 
 	// //   // 操作新创建的NFT合约
-	  const nftAddress = "0xE25fD2B559eFc13aEE0ad81719992B9fCA3c0112"
+	  const nftAddress = "0x956A553FB0f4ab8D81375321e646f657EB6695cf"
       const nft = new ethers.Contract(nftAddress, require('./abis/NFT.json'), wallet)  // new代币合约对象
 	  let totalSupply = await nft.totalSupply()
 	  console.log('totalSupply', totalSupply.toString())
@@ -130,8 +129,8 @@ async function main() {
 		
 	//  	const salePrice = supplyInfo.salePrice
 	//     const amount = 1    // 要mint的数量
-	//  	tx = await nft.mint(wallet.address, amount, {value: salePrice})
-	//  	const rt =  await tx.wait()
+	//  	const tx0 = await nft.mint(wallet.address, amount, {value: salePrice})
+	//  	const rt =  await tx0.wait()
 	//  	evt = rt.events[rt.events.length-1]
 	//  	console.log(evt.args)
 	//  	console.log("hash txid:", tx.hash)
