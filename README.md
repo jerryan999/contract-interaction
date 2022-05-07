@@ -1,3 +1,17 @@
+### 修改情况汇总
+
+- 2022-05-07: 
+  - tokenFactory地址修改
+- 2022-05-06: 
+  - createNFT函数新增一个参数baseUri
+  - strategy地址修改
+  - donation地址修改
+  - distribution地址修改
+  - donation.donateETH接口参数修改
+
+
+
+
 ### ens owners
 
 ```
