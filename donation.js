@@ -74,6 +74,8 @@ async function main() {
     var did = null
     // 定义一个对象，下边用到
     var dinfo = {}
+    // 定义saft tokenid
+    var tokenId = null
 
     // One-time vesting
     async function onetimeVesting() {
@@ -204,6 +206,9 @@ async function main() {
         evt = receipt2.events[receipt2.events.length-1]
         console.log("claimSaft to did", did)
         console.log('claimSaft', evt.args)
+
+        tokenId = evt.args._tokenId.toString()
+        console.log("claimSaft tokenId", tokenId)
         break
         }
     }
@@ -261,13 +266,17 @@ async function main() {
     }
 
     async function claimToken() {
-        // 这个地址从后端取，后端从claimSafts来取
-        saftAddress = "0xf5535c7db2a16fcea1b7e6bfd0dc1a677b1b9870"
-        // 这个tokenid也从后端取，后端从claimSafts来取
-        tokenId = 0
+        // 这个地址从后端取，后端从claimSafts来取,或者donationInfo里面取
+        // saftAddress = "0xf5535c7db2a16fcea1b7e6bfd0dc1a677b1b9870"
+        console.log("start claim token")
+        console.log("tokenId of claim token", tokenId)
 
+        saftAddress = dinfo.saft
         // 查看一下我的可以认领的数据
         const saft =  new ethers.Contract(saftAddress, require('./abis/saft.json'), wallet)
+
+        // 这个tokenid也从后端取，后端从claimSafts来取
+        // 闭包获取tokenId
         const claimable = await saft.claimable(tokenId)
         console.log("claimable", claimable.toString())
 
@@ -278,24 +287,25 @@ async function main() {
 
         // 认领代币的tokenid列表
         console.log("开始进行claim token操作")
-        const tokenids = ["0"]
+        const tokenids = [tokenId]
         // 领取到哪个地址
-        const to = "0x11b720ad9fa537e5a249cac9f8069eb26921d59a"  
-        const amount = ethers.utils.parseEther('0.000020000000000000')   // 也可以从claimable取
-        await saft.claim(tokenids, to, amount)
+        const to = dinfo.admin  
+        // const amount = ethers.utils.parseEther('0.000020000000000000')   // 也可以从claimable取
+        await saft.claim(tokenids, to, claimable)
         console.log("claim token done")
+
     }
 
     // 一次性尝试
-    // await onetimeVesting()
-    did = 8
-    // await printDonationInfo()
-    // // 尝试连续两次捐赠,一次认领
-    // await donate()
-    // await donate()
-    // await claimsaft()
-    // await claimBack()
-    // await claimETHFund()
+    // 尝试连续两次捐赠,一次认领
+    await onetimeVesting()
+    // did = 15  有时候需要手动设置一下
+    await printDonationInfo()
+    await donate()
+    await donate()
+    await claimsaft()
+    await claimBack()
+    await claimETHFund()
     await claimToken()
 
     // 线性释放
@@ -311,9 +321,6 @@ async function main() {
 
 
     // await createStagedVesting()
-
-
-
 
 
 
