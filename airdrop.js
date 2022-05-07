@@ -56,27 +56,27 @@ async function main() {
 
 
 	
-	console.log("尝试一些bounty操作")
-	const _startTime = Math.floor(new Date().getTime() / 1000) + 3600 * 0 // 领取开始时间
-	const _endTime = _startTime + 3600 * 24 // 空投领取持续一天，一天后不可领
+	// console.log("尝试一些bounty操作")
+	// const _startTime = Math.floor(new Date().getTime() / 1000) + 3600 * 0 // 领取开始时间
+	// const _endTime = _startTime + 3600 * 24 // 空投领取持续一天，一天后不可领
 
-	const distributionType = 1
-	const _merkleRoot = ethers.constants.HashZero
-	let tx = await airdrop.createDistribution(distributionType, tokenAddress, _merkleRoot, _totalAllocation, _startTime, _endTime)
-	const receipt = await tx.wait()
-	console.log('bounty created')
-	evt = receipt.events[receipt.events.length-1]
-	// console.log(evt.args)
-	const _did = evt.args._did.toString()
-	const _root = evt.args._root.toString()
-	const _distributionType = evt.args._type.toString()
-	console.log('did for bounty:', _did)
-	console.log('_root for bounty', _root)
-	console.log('_distributionType', _distributionType)
+	// const distributionType = 1
+	// const _merkleRoot = ethers.constants.HashZero
+	// let tx = await airdrop.createDistribution(distributionType, tokenAddress, _merkleRoot, _totalAllocation, _startTime, _endTime)
+	// const receipt = await tx.wait()
+	// console.log('bounty created')
+	// evt = receipt.events[receipt.events.length-1]
+	// // console.log(evt.args)
+	// const _did = evt.args._did.toString()
+	// const _root = evt.args._root.toString()
+	// const _distributionType = evt.args._type.toString()
+	// console.log('did for bounty:', _did)
+	// console.log('_root for bounty', _root)
+	// console.log('_distributionType', _distributionType)
 
 
 	// console.log("开始设定merkelroot,只能设定一次(subgraph会反应慢)")
-	// // const _did = 22
+	// const _did = 10
 	// _merkleRootUpdate = '0x19518c720edd3bb0b1696a28f88b412e92beacc2df84b55cda1082d7b56f22ac' 
     // tx = await airdrop.setRoot(_did, _merkleRootUpdate)
 	// console.log("再次看一下root是否已经修改")
@@ -84,15 +84,16 @@ async function main() {
 	// console.log(infos)
 	
 
-	// const airdropId = 16
+	const airdropId = 18
 	// const amount = ethers.utils.parseUnits('0.0341', 18)
-	// const _merkleProof = [
-	// ] // 从api获得
-	// tx = await airdrop.claim(airdropId, amount, _merkleProof)
-	// let rept = await tx.wait()
-	// console.log('claimed')
-	// evt = rept.events[rept.events.length-1]
-	// console.log(evt.args)
+	const _merkleProof = [
+		'0x52abc8e62513655b5bd957c356072f61dcd4eb4707ad647ef4873c29b749614c',
+	] // 从api获得
+	tx = await airdrop.claim(airdropId, "5000000000000000000", _merkleProof)
+	let rept = await tx.wait()
+	console.log('claimed')
+	evt = rept.events[rept.events.length-1]
+	console.log(evt.args)
 
 }
 

@@ -28,6 +28,7 @@ async function main() {
     // 60秒之后合约开始生效
     startTime += 60   
 
+    // donation parameters
     const di = {
         admin: wallet.address, 
         startTime,
@@ -46,6 +47,7 @@ async function main() {
     const duration = 100 // * 24 * 30   // 合约什么时候结束呢，30天后吗，测试的时候设定的时间短点，比如5分钟
     di.endTime = di.startTime + duration
     
+    // saft paramaters
     const sp = {
         owner: donation.address,
         token: di.tokenOut,
@@ -69,14 +71,14 @@ async function main() {
     console.log('current my balance', balanceBefore.toString())
 
     // 定义一个did变量,下边会用到
-    var did = 0
+    var did = null
     // 定义一个对象，下边用到
     var dinfo = {}
 
     // One-time vesting
     async function onetimeVesting() {
         console.log("One time vesting mode")
-        const releaseTime = di.endTime // + 3600 * 24 * 7      // 合约结束后7天内可以解锁代币
+        const releaseTime = di.endTime // + 3600 * 24 * 7,测试的时候选择筹款结束后立马释放     // 合约结束后7天内可以解锁代币
         const iface = new ethers.utils.Interface(require('./abis/SaftFactory.json'))
         let data = iface.encodeFunctionData('createOnetime', [sp, releaseTime])
         console.log("prepared data")
@@ -94,19 +96,58 @@ async function main() {
         console.log("donation id did:", did)
     }
 
+    async function createStagedVesting() {
+        console.log("createStagedVesting vesting mode")
+        const iface = new ethers.utils.Interface(require('./abis/SaftFactory.json'))
+        console.log("prepared data")
+        const releaseTime = di.endTime + 0
+        const releaseTimesStaged = [releaseTime+60, 
+                                    releaseTime+60*2, 
+                                    releaseTime+60*3
+                                ]
+        const releaseAmountsStaged = [
+                                    ethers.utils.parseEther('0'), 
+                                    ethers.utils.parseEther('0'), 
+                                    ethers.utils.parseEther('0')
+                                ]
+        let data = iface.encodeFunctionData('createStaged', [sp, releaseTimesStaged, releaseAmountsStaged])
 
-    // 分阶段释放(还没有跑通)
-    // const releaseTimesStaged = [di.endTime+600, 
-    //                             di.endTime+600*2, 
-    //                             di.endTime+600*3,
-    //                             di.endTime+600*4
-    //                         ]
-    // const releaseAmountsStaged = [ethers.utils.parseEther('25'), 
-    //                             ethers.utils.parseEther('25'), 
-    //                             ethers.utils.parseEther('25'),
-    //                             ethers.utils.parseEther('25'), 
-    //                         ]
-    // let data = iface.encodeFunctionData('createStaged', [sp, releaseTimesStaged, releaseAmountsStaged])
+        // 创建
+        console.log("start creating")
+        tx = await donation.createDonation(di, data)
+
+        // 等待创建完成
+        let receipt = await tx.wait()
+        evt = receipt.events[receipt.events.length-1]
+
+        console.log("evt.args._did")
+        did = evt.args._did.toString()
+        console.log("donation id did:", did)
+    }
+
+    async function createLinearlyVesting() {
+        console.log("createLinearlyVesting vesting mode")
+        const iface = new ethers.utils.Interface(require('./abis/SaftFactory.json'))
+        console.log("prepared data")
+        const startTime = di.endTime + 0
+        const endTime = di.endTime + 120
+        const count = 2
+        let data = iface.encodeFunctionData('createLinearly', [sp, startTime, endTime, count])
+
+        // 创建
+        console.log("start creating")
+        tx = await donation.createDonation(di, data)
+
+        // 等待创建完成
+        let receipt = await tx.wait()
+        evt = receipt.events[receipt.events.length-1]
+
+        console.log("evt.args._did")
+        did = evt.args._did.toString()
+        console.log("donation id did:", did)
+    }
+
+
  
     async function donate(){
         while(true) {
@@ -151,7 +192,7 @@ async function main() {
     async function claimsaft() {
         while(true) {
             const now = await getBlockTime(donation)
-            if (now < dinfo.endTime) {
+            if (now < dinfo.endTime) {   
                 console.log("waiting for end, 剩余多少秒",dinfo.endTime-now)
                 await sleep(1000) // 等待达到开始时间
                 continue
@@ -219,17 +260,61 @@ async function main() {
         }
     }
 
+    async function claimToken() {
+        // 这个地址从后端取，后端从claimSafts来取
+        saftAddress = "0xf5535c7db2a16fcea1b7e6bfd0dc1a677b1b9870"
+        // 这个tokenid也从后端取，后端从claimSafts来取
+        tokenId = 0
+
+        // 查看一下我的可以认领的数据
+        const saft =  new ethers.Contract(saftAddress, require('./abis/saft.json'), wallet)
+        const claimable = await saft.claimable(tokenId)
+        console.log("claimable", claimable.toString())
+
+        if (claimable.toString() == 0) {
+            console.log("没啥可以认领的，退出吧")
+            return 
+        }
+
+        // 认领代币的tokenid列表
+        console.log("开始进行claim token操作")
+        const tokenids = ["0"]
+        // 领取到哪个地址
+        const to = "0x11b720ad9fa537e5a249cac9f8069eb26921d59a"  
+        const amount = ethers.utils.parseEther('0.000020000000000000')   // 也可以从claimable取
+        await saft.claim(tokenids, to, amount)
+        console.log("claim token done")
+    }
 
     // 一次性尝试
-    await onetimeVesting()
-    // did = 8
-    await printDonationInfo()
-    // 尝试连续两次捐赠,一次认领
-    await donate()
-    await donate()
-    await claimsaft()
-    await claimBack()
-    await claimETHFund()
+    // await onetimeVesting()
+    did = 8
+    // await printDonationInfo()
+    // // 尝试连续两次捐赠,一次认领
+    // await donate()
+    // await donate()
+    // await claimsaft()
+    // await claimBack()
+    // await claimETHFund()
+    await claimToken()
+
+    // 线性释放
+    // await createLinearlyVesting()
+    // did = 11
+    // await printDonationInfo()
+    // // 尝试连续两次捐赠,一次认领
+    // await donate()
+    // await donate()
+    // await claimsaft()
+    // await claimBack()
+    // await claimETHFund()
+
+
+    // await createStagedVesting()
+
+
+
+
 
 
 
