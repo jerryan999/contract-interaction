@@ -1,0 +1,260 @@
+
+# get all the tokens from the subgraph
+{
+  tokens {
+    id
+    name
+    symbol 
+    decimals
+    totalSupply
+    creator
+    txid      
+    timestamp    
+    isNFT
+  }
+}
+
+# query token by id
+{
+  tokens(where: {id: "0x07c15f808d097193a5ab5c95682ac0c4e3e8fbd6"}) {
+    id
+    name
+    symbol
+    decimals
+    totalSupply
+    creator
+    txid
+    timestamp
+    isNFT
+  }
+}
+
+# query token by isNFT
+{
+  tokens(where: {isNFT: true}) {
+    id
+    name
+    symbol
+    decimals
+    totalSupply
+    creator
+    txid
+    timestamp
+    isNFT
+  }
+}
+
+{
+  balances {
+    id
+    token {
+      id
+      name
+      isNFT
+    }
+    value
+  }
+}
+
+
+# query balances by (token + user) address
+# id的前半部分是token的id，后半部分是用户的钱包地址
+{
+  balances(where: {id: "0x2beb92a3ec255b48cb7e9d6cab11ddaea37565120x11b720ad9fa537e5a249cac9f8069eb26921d59a"}) {
+    id
+    token {
+      id
+      name
+      isNFT
+    }
+    value
+  }
+}
+
+
+# query balances by token address
+{
+  balances(where:{token:"0x2beb92a3ec255b48cb7e9d6cab11ddaea3756512"}) {
+    id
+    token {
+      id
+      name
+      isNFT
+    }
+    value
+  }
+}
+
+
+
+
+{
+  transferRecords {
+    id
+    token {
+      id
+    }
+    fromAddr
+    toAddr
+    value
+    txid
+    timestamp
+  }
+}
+
+
+{
+  airdrops {
+    id
+    totalAllocation
+    root
+    token
+    startTime
+    endTime
+    txid
+    timestamp
+    state
+  }
+}
+
+{
+  claimAirdrops {
+    id
+    airdrop {
+      id
+    }
+    user
+    amount
+    txid
+    timestamp
+  }
+}
+
+{
+  donations {
+    id
+    admin
+    tokenIn
+    tokenOut
+    amountIn
+    amountOut
+    fund
+    uri
+    startTime
+    endTime
+    saft
+    txid
+    timestamp
+  }
+}
+
+{
+  donates {
+    id
+    user
+    amount
+    txid
+    timestamp
+  }
+}
+
+{
+  donationClaimBacks {
+        id
+        to
+        amount
+        fee
+        txid
+        timestamp
+  }
+}
+
+{
+  claimSafts {
+    id
+    did {
+      id
+    }
+    user
+    tokenId
+    txid
+    timestamp
+  }
+}
+
+{
+  distributions {
+    id
+    owner
+    totalAllocation
+    root
+    token
+    startTime
+    endTime
+    txid
+    timestamp
+    state
+  }
+}
+
+{
+  claimDistributions {
+    id
+    distribution {
+      id
+    }
+    user
+    amount
+    txid
+    timestamp
+  }
+}
+
+{
+  nfts {
+    id
+    name
+    symbol
+    totalSupply
+    creator
+    txid
+    timestamp
+  }
+}
+
+{
+  claimNfts {
+    id
+    user
+    nft
+    startId
+    amount
+    cost
+    fee
+    txid
+    timestamp
+  }
+}
+
+
+{
+  mintNfts {
+    id
+    user
+    cost
+    fee
+    tokenId
+  }
+}
+
+{
+  nfts {
+    id
+    name
+    symbol
+    totalSupply
+    creator
+    txid
+    timestamp
+  }
+}

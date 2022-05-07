@@ -1,0 +1,84 @@
+
+
+type Token @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  decimals: Int!       # 精度
+  totalSupply: BigInt! # 总供应量
+  creator: Bytes! 
+  txid: Bytes!         # 交易ID
+  timestamp: Int!      
+  isNFT: Boolean!      # 是否为NFT
+}
+
+type Balance @entity { # 用户token余额
+  id: ID!              # ID 为用户地址
+  token: Token!
+  value: BigInt!
+}
+
+type TransferRecord @entity {  # token转账记录
+  id: ID!
+  token: Token!
+  fromAddr: Bytes!
+  toAddr: Bytes!
+  value: BigInt!
+  txid: Bytes!
+  timestamp: Int!
+}
+
+type Airdrop @entity {
+  id: ID!
+  totalAllocation: BigInt!   # 空投数量
+  root: Bytes!               # 默克尔根
+  token: Bytes!              
+  startTime: Int!
+  endTime: Int!
+  txid: Bytes!
+  timestamp: Int!
+  state: String!
+}
+
+type ClaimAirdrop @entity { # 空投领取记录
+  id: ID!
+  airdrop: Airdrop!
+  user: Bytes!
+  amount: BigInt!
+  txid: Bytes!
+  timestamp: Int!
+}
+
+type Donation @entity {
+  id: ID!
+  admin: Bytes!        # 管理员
+  tokenIn: Bytes!      # 接收的捐赠token
+  tokenOut: Bytes!     # 捐赠者将收到的token
+  amountIn: BigInt!    # 接收捐赠的token数量，对应tokenIn
+  amountOut: BigInt!   # 给捐赠者的token数量，对应tokenOut
+  fund: BigInt!        # 累计捐献金额
+  uri: String!         # 捐赠信息链接
+  startTime: Int!
+  endTime: Int!
+  saft: Bytes!         
+  txid: Bytes!
+  timestamp: Int!
+}
+
+type Donate @entity {  # 捐赠记录
+  id: ID!
+  did: Donation!
+  user: Bytes!
+  amount: BigInt!
+  txid: Bytes!
+  timestamp: Int!
+}
+
+type ClaimSaft @entity { # 捐赠者领取saft记录
+  id: ID!
+  did: Donation!
+  user: Bytes!
+  tokenId: BigInt!       # 捐赠者分配到的saft的tokenId
+  txid: Bytes!
+  timestamp: Int!
+}
