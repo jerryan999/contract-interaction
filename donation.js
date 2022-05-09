@@ -79,6 +79,7 @@ async function main() {
 
     // One-time vesting
     async function onetimeVesting() {
+        console.log("\n")
         console.log("One time vesting mode")
         const releaseTime = di.endTime // + 3600 * 24 * 7,测试的时候选择筹款结束后立马释放     // 合约结束后7天内可以解锁代币
         const iface = new ethers.utils.Interface(require('./abis/SaftFactory.json'))
@@ -152,6 +153,7 @@ async function main() {
 
  
     async function donate(){
+        console.log("\n")
         while(true) {
             const now = await getBlockTime(donation)
             if (now < dinfo.startTime) {
@@ -183,6 +185,7 @@ async function main() {
 
     // print donation info
     async function printDonationInfo() {
+        console.log("\n")
         console.log("print dontation info")
         dinfo = await donation.donationInfos(did)
         console.log('did', did)
@@ -192,6 +195,7 @@ async function main() {
 
     // // 认领动作
     async function claimsaft() {
+        console.log("\n")
         while(true) {
             const now = await getBlockTime(donation)
             if (now < dinfo.endTime) {   
@@ -216,6 +220,7 @@ async function main() {
 
     // owner claimBack
     async function claimBack() {
+        console.log("\n")
         while(true) {
             const now = await getBlockTime(donation)
             if (now < dinfo.endTime) {
@@ -235,11 +240,13 @@ async function main() {
 
     //如果是普通的fund（非eth)，使用下边的函数
     async function claimFund() {
+        console.log("\n")
         await donation.claimFund(did)
     }
 
     // claimETHFund, eth取现特殊函数
     async function claimETHFund() { 
+        console.log("\n")
         // 先看一下有没有代币余额
         // const balance = await provider.getBalance(nft.address)
         // console.log("余额为：", balance.toString())
@@ -268,6 +275,7 @@ async function main() {
     async function claimToken() {
         // 这个地址从后端取，后端从claimSafts来取,或者donationInfo里面取
         // saftAddress = "0xf5535c7db2a16fcea1b7e6bfd0dc1a677b1b9870"
+        console.log("\n")
         console.log("start claim token")
         console.log("tokenId of claim token", tokenId)
 
@@ -291,7 +299,8 @@ async function main() {
         // 领取到哪个地址
         const to = dinfo.admin  
         // const amount = ethers.utils.parseEther('0.000020000000000000')   // 也可以从claimable取
-        await saft.claim(tokenids, to, claimable)
+        tx = await saft.claim(tokenids, to, claimable)
+        console.log("claimToken txid:", tx.hash)
         console.log("claim token done")
 
     }
@@ -313,8 +322,27 @@ async function main() {
     // 线性释放
     async function createLinearTest() {
         // await createLinearlyVesting()
-        did = 18
+        // did = 18
+        // tokenId = "0"
+        await printDonationInfo()
+
+        // 尝试连续两次捐赠,一次认领
+        await donate()
+        await donate()
+        await claimsaft()        // 验证确实只会有一个tokenId
+        // claim token看一下和一次性的有什么不同
+        await claimToken()
+
+        await claimBack()
+        await claimETHFund()
+    
+    }
+
+
+    async function createStagedVestingTest() {
+        did = 19
         tokenId = 0
+        // await createStagedVesting()
         await printDonationInfo()
         // 尝试连续两次捐赠,一次认领
         // await donate()
@@ -327,12 +355,9 @@ async function main() {
         await claimToken()
     }
 
-    await createLinearTest()
-
-    // await createStagedVesting()
-
-
-
+    await onetimeTest()
+    // await createLinearTest()
+    // await createStagedVestingTest()
 
 }
 

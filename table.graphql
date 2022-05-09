@@ -272,16 +272,16 @@
 
 {
   donationClaimFunds {
-                                id
-                                did {
-                                  id
-                                }
-                                to
-                                amount
-                                txid
-                                fee
-                                timestamp
-}
+      id
+      did {
+        id
+      }
+      to
+      amount
+      txid
+      fee
+      timestamp
+  }
 }
 
 {
