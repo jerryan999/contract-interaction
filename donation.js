@@ -132,10 +132,10 @@ async function main() {
         console.log("createLinearlyVesting vesting mode")
         const iface = new ethers.utils.Interface(require('./abis/SaftFactory.json'))
         console.log("prepared data")
-        const startTime = di.endTime + 0
-        const endTime = di.endTime + 120
+        const startTime = di.endTime + 0  // 1. start time会不会释放？   2. debug方便，release star time设定为di的endtime
+        const endTime = di.endTime + 120  // end time会不会释放？
         const count = 2
-        let data = iface.encodeFunctionData('createLinearly', [sp, startTime, endTime, count])
+        let data = iface.encodeFunctionData('createLinearly', [sp, startTime, endTime, count])    // 
 
         // 创建
         console.log("start creating")
@@ -198,7 +198,7 @@ async function main() {
         console.log("\n")
         while(true) {
             const now = await getBlockTime(donation)
-            if (now < dinfo.endTime) {   
+            if (now < dinfo.endTime) {  // 因为debug过程中为了方便，把一次性释放的第一个节点设定和endTime一样
                 console.log("waiting for end, 剩余多少秒",dinfo.endTime-now)
                 await sleep(1000) // 等待达到开始时间
                 continue
@@ -275,7 +275,6 @@ async function main() {
     async function claimToken() {
         // 这个地址从后端取，后端从claimSafts来取,或者donationInfo里面取
         // saftAddress = "0xf5535c7db2a16fcea1b7e6bfd0dc1a677b1b9870"
-        console.log("\n")
         console.log("start claim token")
         console.log("tokenId of claim token", tokenId)
 
@@ -285,8 +284,11 @@ async function main() {
 
         // 这个tokenid也从后端取，后端从claimSafts来取
         // 闭包获取tokenId
+        console.log("before claimable")
         const claimable = await saft.claimable(tokenId)
         console.log("claimable", claimable.toString())
+        console.log("after claimable")
+
 
         if (claimable.toString() == 0) {
             console.log("没啥可以认领的，退出吧")
@@ -302,6 +304,7 @@ async function main() {
         tx = await saft.claim(tokenids, to, claimable)
         console.log("claimToken txid:", tx.hash)
         console.log("claim token done")
+        console.log("\n")
 
     }
 
@@ -321,17 +324,28 @@ async function main() {
 
     // 线性释放
     async function createLinearTest() {
-        // await createLinearlyVesting()
-        // did = 18
+        await createLinearlyVesting()
+        // did = 23   
         // tokenId = "0"
         await printDonationInfo()
 
-        // 尝试连续两次捐赠,一次认领
+        // 尝试连续三次捐赠,线性三次认领
+        await donate()
         await donate()
         await donate()
         await claimsaft()        // 验证确实只会有一个tokenId
-        // claim token看一下和一次性的有什么不同
-        await claimToken()
+
+        // claim token看一下和一次性的有什么不同，每隔10秒尝试一下领取操作
+        // 目前观察到的情况是： 40  90 100 领取了三次，是不是超了? id=0x1e  感觉超量领取了，待从the graph查看一下
+        for (let i = 0; i < 13; i++) {
+            console.log("第n次认领前:", i*10)
+            await claimToken()
+
+            // 间隔10秒钟（目的是测试查看合约到底哪个时间可以领取多少币）
+            await sleep(10*1000)
+            console.log("第n次认领后:", i*10)
+            console.log("\n")
+        }
 
         await claimBack()
         await claimETHFund()
@@ -355,8 +369,8 @@ async function main() {
         await claimToken()
     }
 
-    await onetimeTest()
-    // await createLinearTest()
+    // await onetimeTest()
+    await createLinearTest()
     // await createStagedVestingTest()
 
 }
