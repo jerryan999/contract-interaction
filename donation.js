@@ -76,6 +76,7 @@ async function main() {
     var dinfo = {}
     // 定义saft tokenid
     var tokenId = null
+    var claimed = null  // 总共认领多少个币
 
     // One-time vesting
     async function onetimeVesting() {
@@ -213,6 +214,11 @@ async function main() {
 
         tokenId = evt.args._tokenId.toString()
         console.log("claimSaft tokenId", tokenId)
+        
+        // 给claimed赋值
+        claimed = evt.args._claimed.toString()
+        console.log("claimSaft claimed", claimed)
+
         break
         }
     }
@@ -277,6 +283,7 @@ async function main() {
         // saftAddress = "0xf5535c7db2a16fcea1b7e6bfd0dc1a677b1b9870"
         console.log("start claim token")
         console.log("tokenId of claim token", tokenId)
+        console.log("总共有多少可以领取(包括已经领取的和未领取的）", claimed)
 
         saftAddress = dinfo.saft
         // 查看一下我的可以认领的数据
@@ -285,7 +292,7 @@ async function main() {
         // 这个tokenid也从后端取，后端从claimSafts来取
         // 闭包获取tokenId
         console.log("before claimable")
-        const claimable = await saft.claimable(tokenId)
+        const claimable = await saft.claimable(tokenId)    // 此时我可以领取多少个币
         console.log("claimable", claimable.toString())
         console.log("after claimable")
 
@@ -298,9 +305,11 @@ async function main() {
         // 认领代币的tokenid列表
         console.log("开始进行claim token操作")
         const tokenids = [tokenId]
+
         // 领取到哪个地址
         const to = dinfo.admin  
         // const amount = ethers.utils.parseEther('0.000020000000000000')   // 也可以从claimable取
+        
         tx = await saft.claim(tokenids, to, claimable)
         console.log("claimToken txid:", tx.hash)
         console.log("claim token done")
@@ -366,16 +375,27 @@ async function main() {
         await donate()
         // await donate()
         await claimsaft()        // 验证确实只会有一个tokenId
-        // await claimBack()
-        // await claimETHFund()
-        
+
         // claim token看一下和一次性的有什么不同
-        await claimToken()
+        console.log("总共有多少可以领取(包括已经领取的和未领取的）", claimed)
+        for (let i = 0; i < 13; i++) {
+            console.log("第n次认领前:", i*10)
+            await claimToken()
+
+            // 间隔10秒钟（目的是测试查看合约到底哪个时间可以领取多少币）
+            await sleep(10*1000)
+            console.log("第n次认领后:", i*10)
+            console.log("\n")
+        }
+
+        // claim back
+        await claimBack()
+        await claimETHFund()
     }
 
     // await onetimeTest()
-    await createLinearTest()
-    // await createStagedVestingTest()
+    // await createLinearTest()
+    await createStagedVestingTest()
 
 }
 

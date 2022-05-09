@@ -190,6 +190,25 @@
   }
 }
 
+# token的领取查询
+{
+  activities (where:{eventType:"Claim" saft:"0xb89960040248a4837b9eB1555aB041FfE4586df8"}){
+    id
+    activityId
+    nftName
+    saft
+    tokenId
+    eventType
+    fromAddr
+    toAddr
+    fromAndTo
+    payment
+    price
+    timestamp
+    txid
+  }
+}
+
 {
   distributions {
     id
