@@ -347,6 +347,10 @@ async function main() {
             console.log("\n")
         }
 
+        // 也可以尝试最后一次性认领
+        // await sleep(120*1000)
+        // await claimToken()
+
         await claimBack()
         await claimETHFund()
     
@@ -354,14 +358,14 @@ async function main() {
 
 
     async function createStagedVestingTest() {
-        did = 19
-        tokenId = 0
-        // await createStagedVesting()
+        // did = 19
+        // tokenId = 0
+        await createStagedVesting()
         await printDonationInfo()
         // 尝试连续两次捐赠,一次认领
+        await donate()
         // await donate()
-        // await donate()
-        // await claimsaft()        // 验证确实只会有一个tokenId
+        await claimsaft()        // 验证确实只会有一个tokenId
         // await claimBack()
         // await claimETHFund()
         
