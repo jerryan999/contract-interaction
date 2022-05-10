@@ -21,6 +21,10 @@ async function main() {
     const simpleStrategy = '0x2476e793A57b309B6F06Dbf013Cc3222D2D2517b'
 	const donationAddress = '0x9B4d7476dbEeeE18843463aB4d985bd79dFBfd2e'
 	const donation = new ethers.Contract(donationAddress, require('./abis/Donation.json'), wallet)
+
+    // 当前的eth资产
+    const eth = await wallet.getBalance()
+    console.log('我的钱包资产eth:', eth.toString())
     
 
     let startTime = await getBlockTime(donation)
@@ -96,6 +100,7 @@ async function main() {
         evt = receipt.events[receipt.events.length-1]
 
         console.log("evt.args._did")
+        console.log("hash:",tx.hash)
         did = evt.args._did.toString()
         console.log("donation id did:", did)
     }
@@ -320,15 +325,16 @@ async function main() {
     // 一次性尝试
     async function onetimeTest() {
         // 尝试连续两次捐赠,一次认领
-        // did = 15  有时候需要手动设置一下
-        await onetimeVesting()
+        did = 49  //有时候需要手动设置一下
+        tokenId = "0"
+        // await onetimeVesting()
         await printDonationInfo()
-        await donate()
-        await donate()
-        await claimsaft()
+        // await donate()
+        // await donate()
+        // await claimsaft()
+        await claimToken()
         await claimBack()
         await claimETHFund()
-        await claimToken()
     }
 
     // 线性释放
@@ -393,9 +399,9 @@ async function main() {
         await claimETHFund()
     }
 
-    // await onetimeTest()
+    await onetimeTest()
     // await createLinearTest()
-    await createStagedVestingTest()
+    // await createStagedVestingTest()
 
 }
 
