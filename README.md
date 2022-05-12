@@ -1,4 +1,7 @@
 ### 修改情况汇总
+- 2022-05-12：
+  - distribution.json abi修改，新增了batchclaim
+
 
 - 2022-05-07: 
   - tokenFactory地址修改
