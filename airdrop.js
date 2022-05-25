@@ -18,22 +18,21 @@ async function main() {
 	const airdropAddress = '0x3110BeC2Ea95CB7BF66bE9eEf5EEc36D5D1144F1'
 	const airdrop = new ethers.Contract(airdropAddress, require('./abis/Distribution.json'), wallet)
 
-	// const tokenAddress = '0x0254CaF957027C003a85ca2578CB7373a38902bd' // 通过createToken产生
-	const tokenAddress = ethers.constants.AddressZero
-	// const token = new ethers.Contract(tokenAddress, require('./abis/Token.json'), wallet)
-	// const allowance = await token.allowance(wallet.address, airdropAddress)
-	// approve eth allowance s 
+	const tokenAddress = '0x2085CDCb9194029F3a7bAd4602f426F2EFd08Cc8' // 通过createToken产生
+	const token = new ethers.Contract(tokenAddress, require('./abis/Token.json'), wallet)
+	const allowance = await token.allowance(wallet.address, airdropAddress)
+	// approve eth allowances 
 	
 
 	// // 注意：准备要分配多少币，需要和默克尔根的总和相同
-	const _totalAllocation = ethers.utils.parseUnits('0.0341', 18)   //每个人的总和
+	const _totalAllocation = ethers.utils.parseUnits('0.0341', 8)   //每个人的总和
 	console.log('allowance', allowance.toString())
 	console.log('_totalAllocation', _totalAllocation.toString())
-	// if (allowance.lt(_totalAllocation)) {
-	// 	console.log('approve')
-	//   let tx = await token.approve(airdropAddress, ethers.constants.MaxUint256)
-	//   await tx.wait()
-	// }
+	if (allowance.lt(_totalAllocation)) {
+		console.log('approve')
+	  let tx = await token.approve(airdropAddress, ethers.constants.MaxUint256)
+	  await tx.wait()
+	}
 
 
 	async function distributeAirdrop() {
@@ -118,19 +117,19 @@ async function main() {
 
 
 	// 单次运行
-	// var did = await distributeAirdrop()
+	var did = await distributeAirdrop()
 	// await Claim(did)
 
 
 	// 批量认领，创建两个did，然后批量认领
-	var did1 = await distributeAirdrop()
-	var did2 = await distributeAirdrop()
-	console.log("did1", did1)
-	console.log("did2", did2)
+	// var did1 = await distributeAirdrop()
+	// var did2 = await distributeAirdrop()
+	// console.log("did1", did1)
+	// console.log("did2", did2)
 
-	const amount = ethers.utils.parseUnits('0.0341', 18)
-	const _merkleProofs = [[],[]] // 从api获得
-	await ClaimBatch([did1, did2], [amount, amount], _merkleProofs)
+	// const amount = ethers.utils.parseUnits('0.0341', 18)
+	// const _merkleProofs = [[],[]] // 从api获得
+	// await ClaimBatch([did1, did2], [amount, amount], _merkleProofs)
 
 }
 
